@@ -1,0 +1,69 @@
+[project]
+name = "skills-claude-perso"
+version = "0.1.0"
+description = "Skills Claude personnels et outillage qualité associé"
+requires-python = ">=3.11"
+
+# ---------------------------------------------------------------------------
+# Ruff : seuils alignés sur le quality gate « Sonar way » (voir docs/quality-gate.md)
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+  "E", "W", "F",   # pycodestyle / pyflakes
+  "I",             # tri des imports
+  "N",             # nommage PEP 8
+  "UP",            # syntaxe moderne
+  "B",             # bugs probables (bugbear)
+  "S",             # sécurité (bandit)
+  "C90",           # complexité cyclomatique
+  "PL",            # pylint (paramètres, retours, branches…)
+  "SIM", "RET",    # simplifications
+  "PT",            # bonnes pratiques pytest
+  "PTH",           # pathlib plutôt que os.path
+  "ARG",           # arguments inutilisés
+  "ERA",           # code commenté
+  "RUF",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pylint]
+max-args = 7
+max-returns = 5
+max-branches = 12
+max-statements = 50
+max-nested-blocks = 4
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004"]
+"skills/**/tests/**" = ["S101", "PLR2004"]
+
+# ---------------------------------------------------------------------------
+# Mypy : typage strict
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+
+# ---------------------------------------------------------------------------
+# Tests et couverture (seuil Sonar : 80 %)
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests", "skills"]
+addopts = "-q --strict-markers --cov --cov-branch --cov-report=term-missing --cov-report=xml"
+
+[tool.coverage.run]
+source = ["tools", "skills"]
+omit = ["tests/*", "skills/*/tests/*"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+skip_covered = true
+exclude_also = ["if __name__ == .__main__.:"]

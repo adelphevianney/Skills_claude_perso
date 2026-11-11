@@ -1,0 +1,61 @@
+name: Quality gate
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # historique complet : nécessaire à l'analyse du nouveau code par Sonar
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Installer les outils
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Lint et format (ruff)
+        run: |
+          ruff check . --output-format=github
+          ruff format --check .
+
+      - name: Typage strict (mypy)
+        run: python -m mypy tools tests
+
+      - name: Validation des skills
+        run: python -m tools.validate_skills skills
+
+      - name: Tests et couverture (>= 80 %)
+        run: python -m pytest
+
+      - name: Quality gate (complexité, imbrication, taille, duplication)
+        run: python -m tools.quality_gate tools skills --json quality-report.json
+
+      - name: Scripts shell (shellcheck)
+        run: find skills -name '*.sh' -print0 | xargs -0 -r shellcheck
+
+      - name: Analyse SonarQube Cloud (si SONAR_TOKEN est configuré)
+        if: ${{ env.SONAR_TOKEN != '' }}
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Rapports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-reports
+          path: |
+            coverage.xml
+            quality-report.json
+          if-no-files-found: ignore
