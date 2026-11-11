@@ -10,7 +10,14 @@ BLOCK = "\n".join(f"value_{index} = {index}" for index in range(10))
 
 
 def test_normalized_code_lines_skips_blanks_and_comments() -> None:
-    assert normalized_code_lines("  a = 1\n\n# commentaire\n    b = 2  \n") == ["a = 1", "b = 2"]
+    assert normalized_code_lines("  a = 1\n\n# commentaire\n    b  =  'x'  \n") == ["a = NUM", "b = STR"]
+
+
+def test_blocks_differing_only_by_literals_are_duplicates(tmp_path: Path) -> None:
+    first, second = tmp_path / "a.py", tmp_path / "b.py"
+    first.write_text("\n".join(f"call_{index}('a', 1)" for index in range(10)), encoding="utf-8")
+    second.write_text("\n".join(f'call_{index}("b", 2.5)' for index in range(10)), encoding="utf-8")
+    assert find_duplication([first, second]).duplicated_lines == 20
 
 
 def test_detects_block_duplicated_across_files(tmp_path: Path) -> None:

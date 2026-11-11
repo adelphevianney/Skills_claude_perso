@@ -11,6 +11,9 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    env:
+      # Exposé au niveau du job pour pouvoir conditionner l'étape SonarQube Cloud.
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -22,33 +25,32 @@ jobs:
           cache: pip
 
       - name: Installer les outils
-        run: python -m pip install -r requirements-dev.txt
+        run: make install PYTHON=python
 
       - name: Lint et format (ruff)
-        run: |
-          ruff check . --output-format=github
-          ruff format --check .
+        run: make lint
 
-      - name: Typage strict (mypy)
-        run: python -m mypy tools tests
+      - name: Typage strict (mypy, outillage puis chaque skill)
+        run: make typecheck PYTHON=python
 
       - name: Validation des skills
-        run: python -m tools.validate_skills skills
+        run: make validate PYTHON=python
 
       - name: Tests et couverture (>= 80 %)
-        run: python -m pytest
+        run: make test PYTHON=python
 
       - name: Quality gate (complexité, imbrication, taille, duplication)
         run: python -m tools.quality_gate tools skills --json quality-report.json
 
+      - name: Auto-contrôle par le skill sonar-review
+        run: make sonar PYTHON=python
+
       - name: Scripts shell (shellcheck)
         run: find skills -name '*.sh' -print0 | xargs -0 -r shellcheck
 
-      - name: Analyse SonarQube Cloud (si SONAR_TOKEN est configuré)
+      - name: Analyse SonarQube Cloud (si le secret SONAR_TOKEN est configuré)
         if: ${{ env.SONAR_TOKEN != '' }}
         uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Rapports
         if: always()
@@ -58,4 +60,5 @@ jobs:
           path: |
             coverage.xml
             quality-report.json
+            sonar-metrics.json
           if-no-files-found: ignore

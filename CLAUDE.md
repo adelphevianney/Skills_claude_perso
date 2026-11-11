@@ -46,11 +46,25 @@ make package SKILL=<nom>          # archive .zip dans dist/
 - `SKILL.md` reste court ; le détail va dans `references/`, le code exécutable dans `scripts/`.
 - Ajouter le skill au tableau « Skills disponibles » du `README.md`.
 
+### Scripts d'un skill
+
+- Un script doit rester exécutable directement (`python3 scripts/<script>.py`) : ses modules
+  s'importent entre eux par leur nom (`from sonar_rules import …`), sans paquet.
+- Préfixer les modules par un nom propre au skill (`sonar_*.py`) : tous les dossiers `scripts/`
+  partagent le même `sys.path` pendant les tests.
+- Tests dans `skills/<nom>/tests/test_<prefixe>_*.py`, avec un `conftest.py` qui ajoute `scripts/`
+  au `sys.path` (voir `skills/sonar-review/tests/conftest.py`).
+- Les échantillons de code volontairement fautif (secrets factices, `eval`…) servant de données de
+  test vont dans `tests/data/*.txt`, jamais dans un fichier de code : sinon les analyseurs les signalent.
+- Refactoring d'un script existant : capturer d'abord sa sortie sur plusieurs entrées, puis vérifier
+  qu'elle est identique après (texte et JSON). Tout changement de comportement est annoncé.
+
 ## Commandes
 
 | Commande | Rôle |
 |---|---|
 | `make install` | installe les outils de développement |
-| `make check` | lint, typage, validation des skills, tests + couverture, quality gate |
+| `make check` | lint, typage, validation des skills, tests + couverture, quality gate, auto-contrôle sonar |
 | `make gate` | quality gate seul |
+| `make sonar` | le skill sonar-review analyse le dépôt (échec dès une issue MINOR) |
 | `make package SKILL=<nom>` | archive `.zip` importable dans Claude |

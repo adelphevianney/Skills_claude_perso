@@ -48,6 +48,7 @@ sur la même ligne.
 
 ```bash
 make check                                   # tout, comme la CI
+make sonar                                   # le skill sonar-review analyse tools/ et skills/
 python -m tools.quality_gate tools skills    # gate seul
 python -m tools.quality_gate skills/mon-skill --json rapport.json
 ```

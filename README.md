@@ -9,13 +9,14 @@ pour les créer, les valider, les empaqueter et garantir la qualité de tout le 
 
 | Skill | Description |
 |---|---|
-| _(aucun pour l'instant)_ | Créez le premier avec `python -m tools.new_skill` |
+| [`sonar-review`](skills/sonar-review/SKILL.md) | Revue et correction de code façon SonarQube : bugs, vulnérabilités, hotspots, code smells, duplication, complexité, notes A–E, Quality Gate, rapport puis corrections. Script `sonar_metrics.py` sans dépendance. |
 
 ## Structure
 
 ```
 .
 ├── skills/                  # un dossier par skill : skills/<nom>/SKILL.md (+ references/, scripts/, tests/)
+│   └── sonar-review/        #   revue de code façon SonarQube
 ├── templates/skill/         # gabarit utilisé par tools.new_skill
 ├── tools/                   # outillage Python (bibliothèque standard uniquement)
 │   ├── new_skill.py         #   crée un skill à partir du gabarit
@@ -91,6 +92,7 @@ complexité cognitive ≤ 15 par fonction. Le détail des seuils et des outils e
 | Structure des skills | `tools.validate_skills` |
 | Tests et couverture ≥ 80 % | pytest + pytest-cov |
 | Complexité cognitive, imbrication, taille, duplication | `tools.quality_gate` |
+| Auto-contrôle : le skill sonar-review analyse le dépôt (échec dès une issue MINOR) | `make sonar` |
 | Scripts Bash | shellcheck |
 | Analyse serveur (optionnelle) | SonarQube Cloud via `SONAR_TOKEN` |
 

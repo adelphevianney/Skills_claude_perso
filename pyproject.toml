@@ -55,8 +55,10 @@ warn_unreachable = true
 # Tests et couverture (seuil Sonar : 80 %)
 # ---------------------------------------------------------------------------
 [tool.pytest.ini_options]
+# importlib : les tests et conftest.py de chaque skill coexistent sans conflit de noms
 testpaths = ["tests", "skills"]
-addopts = "-q --strict-markers --cov --cov-branch --cov-report=term-missing --cov-report=xml"
+pythonpath = ["."]
+addopts = "-q --strict-markers --import-mode=importlib --cov --cov-branch --cov-report=term-missing --cov-report=xml"
 
 [tool.coverage.run]
 source = ["tools", "skills"]

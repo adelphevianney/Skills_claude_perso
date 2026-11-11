@@ -1,0 +1,20 @@
+password = "hunter2secret"
+
+
+def risky(a, b, c, d, e, f, g, h, items=[]):
+    for x in items:
+        if x and a or b:
+            while c:
+                if d:
+                    if e:
+                        return 1
+                elif f:
+                    return 2
+                else:
+                    return 3
+    try:
+        eval(h)
+    except Exception:
+        pass
+    # TODO: nettoyer
+    return [i for i in items if i]

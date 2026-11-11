@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -11,6 +12,9 @@ from pathlib import Path
 DEFAULT_MIN_LINES = 10
 _COMMENT_PREFIX = "#"
 MIN_OCCURRENCES = 2
+_STRING_LITERAL = re.compile(r"""(['"`])(?:\\.|(?!\1).)*\1""")
+_NUMBER = re.compile(r"\b\d+(\.\d+)?\b")
+_WHITESPACE = re.compile(r"\s+")
 
 
 @dataclass(frozen=True)
@@ -27,10 +31,17 @@ class DuplicationReport:
         return 100 * self.duplicated_lines / self.code_lines if self.code_lines else 0.0
 
 
+def normalize_line(line: str) -> str:
+    """Neutralise littéraux, nombres et espaces, comme le skill sonar-review."""
+    line = _STRING_LITERAL.sub("STR", line.strip())
+    line = _NUMBER.sub("NUM", line)
+    return _WHITESPACE.sub(" ", line)
+
+
 def normalized_code_lines(source: str) -> list[str]:
-    """Lignes de code significatives, sans indentation ni commentaires de ligne."""
+    """Lignes de code significatives et normalisées, sans commentaires de ligne."""
     lines = (line.strip() for line in source.splitlines())
-    return [line for line in lines if line and not line.startswith(_COMMENT_PREFIX)]
+    return [normalize_line(line) for line in lines if line and not line.startswith(_COMMENT_PREFIX)]
 
 
 def _window_hash(lines: list[str]) -> str:
