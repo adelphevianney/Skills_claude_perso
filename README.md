@@ -65,10 +65,18 @@ Règles de l'en-tête de `SKILL.md` :
 
 ## Installer un skill
 
-**Claude Code** : copier ou lier le dossier dans le répertoire des skills.
+**Claude Code, dans ce dépôt** : les skills sont déclarés comme skills de projet via des liens
+symboliques dans `.claude/skills/`, chargés automatiquement par toute session Claude Code ouverte ici
+(locale ou cloud). Pour en ajouter un :
 
 ```bash
-ln -s "$PWD/skills/mon-skill" ~/.claude/skills/mon-skill      # pour tous vos projets
+ln -s ../../skills/mon-skill .claude/skills/mon-skill
+```
+
+**Claude Code, pour tous vos projets** : lier le dossier dans le répertoire personnel des skills.
+
+```bash
+ln -s "$PWD/skills/mon-skill" ~/.claude/skills/mon-skill
 ```
 
 **claude.ai / application Claude** : générer l'archive puis l'importer depuis les paramètres

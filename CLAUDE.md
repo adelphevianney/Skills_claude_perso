@@ -45,6 +45,8 @@ make package SKILL=<nom>          # archive .zip dans dist/
   le seul texte que Claude voit pour décider de le charger.
 - `SKILL.md` reste court ; le détail va dans `references/`, le code exécutable dans `scripts/`.
 - Ajouter le skill au tableau « Skills disponibles » du `README.md`.
+- L'activer dans Claude Code pour ce dépôt : `ln -s ../../skills/<nom> .claude/skills/<nom>`
+  (lien symbolique, jamais de copie : `skills/<nom>/` reste la seule source).
 
 ### Scripts d'un skill
 
